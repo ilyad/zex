@@ -1344,7 +1344,7 @@ icrclp:	ld	(hl),a
 	pop	af
 	ret
 
-crcval	ds	4
+crcval:	ds	4
 
 crctab:	db	000h,000h,000h,000h
 	db	077h,007h,030h,096h
