@@ -39,9 +39,6 @@
 ; machine state before test (needs to be at predictably constant address)
 msbt:	ds	14
 spbt:	ds	2
-msbthi	equ	msbt / 0100h
-msbtlo	equ	msbt & 0ffh
-
 
 ; For the purposes of this test program, the machine state consists of:
 ;	a 2 byte memory operand, followed by
@@ -194,11 +191,30 @@ tests:
 ;	ZMAC allows &nn as hex, so & removed from local labels
 ;
 tstr:	macro	insn1:req,insn2:req,insn3:req,insn4:req,memop:req,riy:req,rix:req,rhl:req,rde:req,rbc:req,flags:req,acc:req,rsp:req
-	db	insn1,insn2,insn3,insn4
-	dw	memop,riy,rix,rhl,rde,rbc
-	db	flags
-	db	acc
-	dw	rsp
+	db	\insn1,\insn2,\insn3,\insn4
+	dw	\memop,\riy,\rix,\rhl,\rde,\rbc
+	db	\flags
+	db	\acc
+	dw	\rsp
+	endm
+
+tstr_msbt1:	macro	insn1:req,insn4:req,memop:req,riy:req,rix:req,rhl:req,rde:req,rbc:req,flags:req,acc:req,rsp:req
+	db	\insn1
+	dw	msbt
+	db	\insn4
+	dw	\memop,\riy,\rix,\rhl,\rde,\rbc
+	db	\flags
+	db	\acc
+	dw	\rsp
+	endm
+
+tstr_msbt2:	macro	insn1:req,insn2:req,memop:req,riy:req,rix:req,rhl:req,rde:req,rbc:req,flags:req,acc:req,rsp:req
+	db	\insn1,\insn2
+	dw	msbt
+	dw	\memop,\riy,\rix,\rhl,\rde,\rbc
+	db	\flags
+	db	\acc
+	dw	\rsp
 	endm
 
 tmsg:	macro	msg:req
@@ -472,7 +488,7 @@ incyl:	db	0ffh		; flag mask
 
 ; ld <bc,de>,(nnnn) (32 cycles)
 ld161:	db	0ffh		; flag mask
-	tstr	0edh,04bh,msbtlo,msbthi,0f9a8h,0f559h,093a4h,0f5edh,06f96h,0d968h,086h,0e6h,04bd8h
+	tstr_msbt2	0edh,04bh,0f9a8h,0f559h,093a4h,0f5edh,06f96h,0d968h,086h,0e6h,04bd8h
 	tstr	0,010h,0,0,0,0,0,0,0,0,0,0,0		; (2 cycles)
 	tstr	0,0,0,0,-1,0,0,0,0,0,0,0,0		; (16 cycles)
 	db	04dh,045h,0a9h,0ach			; expected crc
@@ -480,7 +496,7 @@ ld161:	db	0ffh		; flag mask
 
 ; ld hl,(nnnn) (16 cycles)
 ld162:	db	0ffh		; flag mask
-	tstr	02ah,msbtlo,msbthi,0,09863h,07830h,02077h,0b1feh,0b9fah,0abb8h,004h,006h,06015h
+	tstr_msbt1	02ah,0,09863h,07830h,02077h,0b1feh,0b9fah,0abb8h,004h,006h,06015h
 	tstr	0,0,0,0,0,0,0,0,0,0,0,0,0		; (1 cycle)
 	tstr	0,0,0,0,-1,0,0,0,0,0,0,0,0		; (16 cycles)
 	db	05fh,097h,024h,087h			; expected crc
@@ -488,7 +504,7 @@ ld162:	db	0ffh		; flag mask
 	
 ; ld sp,(nnnn) (16 cycles)
 ld163:	db	0ffh		; flag mask
-	tstr	0edh,07bh,msbtlo,msbthi,08dfch,057d7h,02161h,0ca18h,0c185h,027dah,083h,01eh,0f460h
+	tstr_msbt2	0edh,07bh,08dfch,057d7h,02161h,0ca18h,0c185h,027dah,083h,01eh,0f460h
 	tstr	0,0,0,0,0,0,0,0,0,0,0,0,0		; (1 cycles)
 	tstr	0,0,0,0,-1,0,0,0,0,0,0,0,0		; (16 cycles)
 	db	07ah,0ceh,0a1h,01bh			; expected crc
@@ -496,7 +512,7 @@ ld163:	db	0ffh		; flag mask
 
 ; ld <ix,iy>,(nnnn) (32 cycles)
 ld164:	db	0ffh		; flag mask
-	tstr	0ddh,02ah,msbtlo,msbthi,0ded7h,0a6fah,0f780h,0244ch,087deh,0bcc2h,016h,063h,04c96h
+	tstr_msbt2	0ddh,02ah,0ded7h,0a6fah,0f780h,0244ch,087deh,0bcc2h,016h,063h,04c96h
 	tstr	020h,0,0,0,0,0,0,0,0,0,0,0,0		; (2 cycles)
 	tstr	0,0,0,0,-1,0,0,0,0,0,0,0,0		; (16 cycles)
 	db	085h,08bh,0f1h,06dh			; expected crc
@@ -504,7 +520,7 @@ ld164:	db	0ffh		; flag mask
 	
 ; ld (nnnn),<bc,de> (64 cycles)
 ld165:	db	0ffh		; flag mask
-	tstr	0edh,043h,msbtlo,msbthi,01f98h,0844dh,0e8ach,0c9edh,0c95dh,08f61h,080h,03fh,0c7bfh
+	tstr_msbt2	0edh,043h,01f98h,0844dh,0e8ach,0c9edh,0c95dh,08f61h,080h,03fh,0c7bfh
 	tstr	0,010h,0,0,0,0,0,0,0,0,0,0,0		; (2 cycles)
 	tstr	0,0,0,0,0,0,0,0,-1,-1,0,0,0		; (32 cycles)
 	db	064h,01eh,087h,015h			; expected crc
@@ -512,7 +528,7 @@ ld165:	db	0ffh		; flag mask
 
 ; ld (nnnn),hl (16 cycles)
 ld166:	db	0ffh		; flag mask
-	tstr	022h,msbtlo,msbthi,0,0d003h,07772h,07f53h,03f72h,064eah,0e180h,010h,02dh,035e9h
+	tstr_msbt1	022h,0,0d003h,07772h,07f53h,03f72h,064eah,0e180h,010h,02dh,035e9h
 	tstr	0,0,0,0,0,0,0,0,0,0,0,0,0		; (1 cycle)
 	tstr	0,0,0,0,0,0,0,-1,0,0,0,0,0		; (16 cycles)
 	db	0a3h,060h,08bh,047h			; expected crc
@@ -520,7 +536,7 @@ ld166:	db	0ffh		; flag mask
 
 ; ld (nnnn),sp (16 cycles)
 ld167:	db	0ffh		; flag mask
-	tstr	0edh,073h,msbtlo,msbthi,0c0dch,0d1d6h,0ed5ah,0f356h,0afdah,06ca7h,044h,09fh,03f0ah
+	tstr_msbt2	0edh,073h,0c0dch,0d1d6h,0ed5ah,0f356h,0afdah,06ca7h,044h,09fh,03f0ah
 	tstr	0,0,0,0,0,0,0,0,0,0,0,0,0		; (1 cycle)
 	tstr	0,0,0,0,0,0,0,0,0,0,0,0,-1		; (16 cycles)
 	db	016h,058h,05fh,0d7h			; expected crc
@@ -528,7 +544,7 @@ ld167:	db	0ffh		; flag mask
 
 ; ld (nnnn),<ix,iy> (64 cycles)
 ld168:	db	0ffh		; flag mask
-	tstr	0ddh,022h,msbtlo,msbthi,06cc3h,00d91h,06900h,08ef8h,0e3d6h,0c3f7h,0c6h,0d9h,0c2dfh
+	tstr_msbt2	0ddh,022h,06cc3h,00d91h,06900h,08ef8h,0e3d6h,0c3f7h,0c6h,0d9h,0c2dfh
 	tstr	020h,0,0,0,0,0,0,0,0,0,0,0,0		; (2 cycles)
 	tstr	0,0,0,0,0,-1,-1,0,0,0,0,0,0		; (32 cycles)
 	db	0bah,010h,02ah,06bh			; expected crc
@@ -624,7 +640,7 @@ ld8rrx:	db	0ffh		; flag mask
 
 ; ld a,(nnnn) / ld (nnnn),a (44 cycles)
 lda:	db	0ffh		; flag mask
-	tstr	032h,msbtlo,msbthi,0,0fd68h,0f4ech,044a0h,0b543h,00653h,0cdbah,0d2h,04fh,01fd8h
+	tstr_msbt1	032h,0,0fd68h,0f4ech,044a0h,0b543h,00653h,0cdbah,0d2h,04fh,01fd8h
 	tstr	008h,0,0,0,0,0,0,0,0,0,0,0,0		; (2 cycle)
 	tstr	0,0,0,0,0ffh,0,0,0,0,0,0d7h,-1,0	; (22 cycles)
 	db	0c9h,026h,02dh,0e5h			; expected crc
