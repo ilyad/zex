@@ -193,15 +193,12 @@ tests:
 ;	can't use opcodes as labels
 ;	ZMAC allows &nn as hex, so & removed from local labels
 ;
-tstr	macro	insn1,insn2,insn3,insn4,memop,riy,rix,rhl,rde,rbc,flags,acc,rsp,?lab
-?lab:	db	insn1,insn2,insn3,insn4
+tstr:	macro	insn1:req,insn2:req,insn3:req,insn4:req,memop:req,riy:req,rix:req,rhl:req,rde:req,rbc:req,flags:req,acc:req,rsp:req
+	db	insn1,insn2,insn3,insn4
 	dw	memop,riy,rix,rhl,rde,rbc
 	db	flags
 	db	acc
 	dw	rsp
-	if	$-?lab ne 20
-	error	'missing parameter'
-	endif
 	endm
 
 tmsg	macro	msg,?lab
