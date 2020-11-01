@@ -201,13 +201,13 @@ tstr:	macro	insn1:req,insn2:req,insn3:req,insn4:req,memop:req,riy:req,rix:req,rh
 	dw	rsp
 	endm
 
-tmsg	macro	msg,?lab
-?lab:	db	'msg'
-	if	$ ge ?lab+31
-	error	'message too long'
-	else
+tmsg:	macro	msg:req
+	db	'msg'
+	;if	$ ge ?lab+31
+	;error	'message too long'
+	;else
 ;	ds	?lab+30-$,'.'	; jgh: ZMAC/MAXAM don't have char parameter
-	endif
+	;endif
 	db	'$'
 	endm
 
